@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>re/up assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--ui-font:'DM Sans',sans-serif;
+--bg:#0a0a0b;--bg2:#111114;--bg3:#18181c;
+--line:#ffffff12;--line2:#ffffff22;
+--accent:#c8f84a;--accent2:#a8e620;
+--text:#f0f0ec;--muted:#888884;--muted2:#555552;
+--red:#ff4d4d;--blue:#4da8ff;--amber:#ffb84d;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--ui-font);font-size:15px;line-height:1.6;display:flex;flex-direction:column}
+::selection{background:var(--accent);color:#0a0a0b}
+
+header{padding:0.9rem 1.25rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2);animation:header-in 0.4s cubic-bezier(0.22,1,0.36,1) both}
+@keyframes header-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-0.02em;color:var(--text)}
+.logo span{color:var(--accent)}
+.header-badge{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted2);letter-spacing:0.08em}
+.header-links{display:flex;gap:0.75rem;align-items:center}
+.header-links a{color:var(--muted2);text-decoration:none;font-size:0.75rem;font-family:'DM Mono',monospace;transition:color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1);display:inline-block}
+.header-links a:hover{color:var(--accent);transform:translateY(-2px)}
+.header-tabs{display:flex;gap:0;border-bottom:none;margin-left:auto;margin-right:1rem}
+.header-tab{background:none;border:1px solid var(--line2);border-right:none;padding:0.35rem 1rem;font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--muted2);cursor:pointer;transition:all 0.15s;outline:none}
+.header-tab:first-child{border-radius:4px 0 0 4px}
+.header-tab:last-child{border-right:1px solid var(--line2);border-radius:0 4px 4px 0}
+.header-tab.active{background:rgba(200,248,74,0.08);color:var(--accent);border-color:rgba(200,248,74,0.3)}
+.header-tab:hover:not(.active){color:var(--muted);background:rgba(255,255,255,0.03)}
+
+/* panels */
+.panel{display:none;flex:1;overflow:hidden;flex-direction:column;animation:panel-in 0.35s cubic-bezier(0.22,1,0.36,1) both}
+.panel.active{display:flex}
+@keyframes panel-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* chat panel */
+.chat{flex:1;overflow-y:auto;padding:1.5rem 1.25rem;display:flex;flex-direction:column;gap:1.25rem;scroll-behavior:smooth}
+.chat::-webkit-scrollbar{width:4px}
+.chat::-webkit-scrollbar-track{background:transparent}
+.chat::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+.msg{max-width:760px;width:100%}
+.msg.user{align-self:flex-end}
+.msg.bot{align-self:flex-start}
+.msg-bubble{padding:0.75rem 1rem;border-radius:8px;font-size:0.875rem;line-height:1.7;animation:msg-pop 0.25s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes msg-pop{from{opacity:0;transform:scale(0.94) translateY(6px)}to{opacity:1;transform:none}}
+.msg.user .msg-bubble{background:var(--bg3);border:1px solid var(--line2);color:var(--text);text-align:right}
+.msg.bot .msg-bubble{background:var(--bg2);border:1px solid var(--line2);color:var(--text)}
+.msg-label{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted2);margin-bottom:0.35rem;letter-spacing:0.06em}
+.msg.user .msg-label{text-align:right}
+.msg-bubble h4{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:0.6rem;color:var(--accent)}
+.msg-bubble p{margin-bottom:0.6rem;color:var(--muted)}
+.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble ul{padding-left:1.1rem;color:var(--muted);display:flex;flex-direction:column;gap:0.2rem;margin-bottom:0.5rem}
+.msg-bubble code{background:var(--bg3);border:1px solid var(--line);padding:0.1rem 0.35rem;border-radius:3px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--accent)}
+.step{display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;padding:0.6rem 0.75rem;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:6px;transition:background 0.15s}
+.step:hover{background:rgba(200,248,74,0.03)}
+.step-n{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);background:rgba(200,248,74,0.1);border:1px solid rgba(200,248,74,0.2);width:20px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-weight:500}
+.fix-tag{display:inline-block;background:rgba(200,248,74,0.1);color:var(--accent);border:1px solid rgba(200,248,74,0.25);border-radius:3px;padding:0.1rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;margin-right:0.25rem;vertical-align:middle}
+.warn-tag{display:inline-block;background:rgba(255,184,77,0.1);color:var(--amber);border:1px solid rgba(255,184,77,0.25);border-radius:3px;padding:0.1rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;margin-right:0.25rem;vertical-align:middle}
+.err-tag{display:inline-block;background:rgba(255,77,77,0.1);color:var(--red);border:1px solid rgba(255,77,77,0.25);border-radius:3px;padding:0.1rem 0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;margin-right:0.25rem;vertical-align:middle}
+.typing{display:flex;gap:4px;align-items:center;padding:0.25rem 0}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted2);animation:dot-bounce 1.2s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:0.2s}
+.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes dot-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.welcome{max-width:620px;align-self:flex-start;animation:panel-in 0.5s cubic-bezier(0.22,1,0.36,1) both}
+.welcome-icon{width:40px;height:40px;border-radius:10px;background:rgba(200,248,74,0.08);border:1px solid rgba(200,248,74,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;animation:icon-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both}
+@keyframes icon-pop{from{opacity:0;transform:scale(0.7) rotate(-10deg)}to{opacity:1;transform:none}}
+.welcome h2{font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:0.5rem}
+.welcome p{color:var(--muted);font-size:0.875rem;line-height:1.6;margin-bottom:1.25rem;font-weight:300}
+.welcome-group{margin-bottom:1rem;animation:panel-in 0.4s cubic-bezier(0.22,1,0.36,1) both}
+.welcome-group:nth-child(3){animation-delay:0.1s}
+.welcome-group:nth-child(4){animation-delay:0.18s}
+.welcome-group:nth-child(5){animation-delay:0.26s}
+.welcome-group-title{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem}
+.welcome-topics{display:flex;flex-wrap:wrap;gap:0.4rem}
+.wtopic{background:var(--bg3);border:1px solid var(--line2);border-radius:4px;padding:0.3rem 0.75rem;font-size:0.78rem;color:var(--muted);cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);font-family:'DM Mono',monospace}
+.wtopic:hover{color:var(--accent);border-color:rgba(200,248,74,0.3);background:rgba(200,248,74,0.05);transform:translateY(-2px)}
+.wtopic:active{transform:scale(0.95)}
+.welcome-tip{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted2);margin-top:0.75rem}
+.suggestions{padding:0.6rem 1.25rem;display:flex;gap:0.4rem;flex-wrap:wrap;flex-shrink:0;border-top:1px solid var(--line);background:var(--bg)}
+.sug{background:var(--bg3);border:1px solid var(--line2);border-radius:100px;padding:0.25rem 0.75rem;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);outline:none}
+.sug:hover{color:var(--accent);border-color:rgba(200,248,74,0.3);transform:translateY(-2px) scale(1.04)}
+.sug:active{transform:scale(0.96)}
+.input-area{padding:0.75rem 1.25rem;border-top:1px solid var(--line);display:flex;gap:0.75rem;align-items:flex-end;flex-shrink:0;background:var(--bg2)}
+textarea{flex:1;background:var(--bg3);border:1px solid var(--line2);border-radius:6px;padding:0.65rem 0.875rem;font-size:0.875rem;color:var(--text);font-family:var(--ui-font);resize:none;outline:none;min-height:40px;max-height:120px;transition:border-color 0.2s,box-shadow 0.2s}
+textarea:focus{border-color:rgba(200,248,74,0.35);box-shadow:0 0 0 3px rgba(200,248,74,0.07)}
+textarea::placeholder{color:var(--muted2)}
+#send{width:38px;height:38px;background:var(--accent);border:none;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+#send:hover{background:var(--accent2);transform:scale(1.1) rotate(-5deg)}
+#send:active{transform:scale(0.92)}
+#send svg{width:14px;height:14px;stroke:#0a0a0b}
+.inline-chip{display:inline-block;background:var(--bg3);border:1px solid var(--line2);border-radius:4px;padding:0.15rem 0.5rem;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.inline-chip:hover{color:var(--accent);border-color:rgba(200,248,74,0.3);background:rgba(200,248,74,0.04);transform:translateY(-1px)}
+
+/* themes + fonts panel */
+.tf-panel{flex:1;overflow-y:auto;padding:1.25rem}
+.tf-panel::-webkit-scrollbar{width:4px}
+.tf-panel::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+.tf-section{margin-bottom:2rem}
+.tf-section-title{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:0.75rem}
+.tf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.tf-card{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);animation:card-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes card-in{from{opacity:0;transform:scale(0.88) translateY(8px)}to{opacity:1;transform:none}}
+.tf-card:hover{transform:translateY(-4px) scale(1.04);border-color:rgba(200,248,74,0.3);box-shadow:0 12px 32px rgba(0,0,0,0.4)}
+.tf-card:active{transform:scale(0.97)}
+.tf-card-bar{height:5px;width:100%}
+.tf-card-body{padding:0.6rem 0.75rem}
+.tf-card-name{font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:600;margin-bottom:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tf-card-sub{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted2)}
+.tf-empty{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted2);padding:1rem 0}
+.tf-loading{display:flex;gap:6px;align-items:center;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted2);padding:0.5rem 0}
+.tf-loading-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);animation:dot-bounce 1s ease-in-out infinite}
+.tf-loading-dot:nth-child(2){animation-delay:0.15s}
+.tf-loading-dot:nth-child(3){animation-delay:0.3s}
+.font-preview{font-size:1rem;color:var(--muted);display:block;margin-top:0.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.tf-toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg3,#18181c);border:1px solid rgba(200,248,74,0.3);color:var(--accent,#c8f84a);font-family:'DM Mono',monospace;font-size:0.72rem;padding:0.4rem 1.1rem;border-radius:100px;opacity:0;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;z-index:9999;white-space:nowrap}
+.tf-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.tf-reset{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted2,#555);border:1px solid var(--line2,#ffffff22);background:none;border-radius:4px;padding:0.25rem 0.65rem;cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);margin-left:auto;display:block}
+.tf-reset:hover{color:var(--text,#f0f0ec);border-color:var(--muted2,#555);transform:scale(1.04)}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">re<span>/</span>up assistant</div>
+    <div class="header-badge">error helper, themes & fonts</div>
+  </div>
+  <div class="header-tabs">
+    <button class="header-tab active" onclick="switchTab('chat',this)">assistant</button>
+    <button class="header-tab" onclick="switchTab('themes',this)">themes</button>
+    <button class="header-tab" onclick="switchTab('fonts',this)">fonts</button>
+  </div>
+  <div class="header-links">
+    <a href="https://envyxity401-cyber.github.io/reup-website/" target="_blank">website</a>
+    <a href="https://guns.lol/simplykur" target="_blank">guns.lol</a>
+    <a href="https://discord.com/users/simplykur" target="_blank">discord</a>
+  </div>
+</header>
+
+<!-- assistant tab -->
+<div class="panel active" id="panel-chat">
+<div class="chat" id="chat">
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8f84a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    </div>
+    <h2>re/up helper</h2>
+    <p>tap any topic below to get a fix, or paste your error. all answers come from the actual source code. re/up now auto-detects most of these in-app too.</p>
+    <div class="welcome-group">
+      <div class="welcome-group-title">errors and failures</div>
+      <div class="welcome-topics">
+        <span class="wtopic" onclick="sendSug(this)">cookie auth failed</span>
+        <span class="wtopic" onclick="sendSug(this)">account does not have permission to edit place</span>
+        <span class="wtopic" onclick="sendSug(this)">animation failed to load</span>
+        <span class="wtopic" onclick="sendSug(this)">plugin not connecting</span>
+        <span class="wtopic" onclick="sendSug(this)">403 forbidden</span>
+        <span class="wtopic" onclick="sendSug(this)">rate limited</span>
+        <span class="wtopic" onclick="sendSug(this)">port 38073 already in use</span>
+        <span class="wtopic" onclick="sendSug(this)">upload quota exceeded</span>
+        <span class="wtopic" onclick="sendSug(this)">name rejected content policy</span>
+        <span class="wtopic" onclick="sendSug(this)">mesh upload failed</span>
+      </div>
+    </div>
+    <div class="welcome-group">
+      <div class="welcome-group-title">setup and credentials</div>
+      <div class="welcome-topics">
+        <span class="wtopic" onclick="sendSug(this)">full setup from scratch</span>
+        <span class="wtopic" onclick="sendSug(this)">how do i get my api key</span>
+        <span class="wtopic" onclick="sendSug(this)">where do i find my cookie</span>
+        <span class="wtopic" onclick="sendSug(this)">multiple accounts pool</span>
+        <span class="wtopic" onclick="sendSug(this)">upload to a group</span>
+      </div>
+    </div>
+    <div class="welcome-group">
+      <div class="welcome-group-title">how to do things</div>
+      <div class="welcome-topics">
+        <span class="wtopic" onclick="sendSug(this)">how do i reupload sounds</span>
+        <span class="wtopic" onclick="sendSug(this)">cancel or pause a job</span>
+        <span class="wtopic" onclick="sendSug(this)">change the port number</span>
+        <span class="wtopic" onclick="sendSug(this)">install the studio plugin</span>
+      </div>
+    </div>
+    <div class="welcome-tip">tap any of those, or type your own question</div>
+  </div>
+</div>
+<div class="suggestions" id="sugs">
+  <button class="sug" onclick="sendSug(this)">show all topics</button>
+  <button class="sug" onclick="sendSug(this)">cookie auth failed</button>
+  <button class="sug" onclick="sendSug(this)">no permission to edit place</button>
+  <button class="sug" onclick="sendSug(this)">animation failed</button>
+  <button class="sug" onclick="sendSug(this)">plugin not connecting</button>
+  <button class="sug" onclick="sendSug(this)">rate limited</button>
+  <button class="sug" onclick="sendSug(this)">how do i get my api key</button>
+</div>
+<div class="input-area">
+  <textarea id="input" placeholder="paste an error or ask a question..." rows="1"></textarea>
+  <button id="send" onclick="send()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  </button>
+</div>
+</div>
+
+<!-- themes tab -->
+<div class="panel" id="panel-themes">
+<div class="tf-panel">
+  <div class="tf-section">
+    <div style="display:flex;align-items:center;margin-bottom:0.75rem"><div class="tf-section-title" style="margin-bottom:0">community themes</div><button class="tf-reset" onclick="resetSiteCustomization()">reset</button></div>
+    <div id="themes-loading" class="tf-loading"><div class="tf-loading-dot"></div><div class="tf-loading-dot"></div><div class="tf-loading-dot"></div><span>fetching themes...</span></div>
+    <div class="tf-grid" id="themes-grid" style="display:none"></div>
+    <div class="tf-empty" id="themes-empty" style="display:none">no community themes yet. submit yours in the re/up desktop app.</div>
+  </div>
+</div>
+</div>
+
+<!-- fonts tab -->
+<div class="panel" id="panel-fonts">
+<div class="tf-panel">
+  <div class="tf-section">
+    <div class="tf-section-title">community fonts</div>
+    <div id="fonts-loading" class="tf-loading"><div class="tf-loading-dot"></div><div class="tf-loading-dot"></div><div class="tf-loading-dot"></div><span>fetching fonts...</span></div>
+    <div class="tf-grid" id="fonts-grid" style="display:none"></div>
+    <div class="tf-empty" id="fonts-empty" style="display:none">no community fonts yet. submit yours in the re/up desktop app.</div>
+  </div>
+</div>
+</div>
+
+<script>
+const SUPA_URL = 'https://dhyxsrwrgovkdaabrbuu.supabase.co/rest/v1';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoeXhzcndyZ292a2RhYWJyYnV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTI2OTcsImV4cCI6MjA5MzU4ODY5N30.zRYkKtMCQXHH8xu8FfiDx-Nx2MhGW2TdZPmkLWcWMA4';
+
+// tab switching
+function switchTab(name, btn) {
+  document.querySelectorAll('.header-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'themes') loadThemes();
+  if (name === 'fonts') loadFonts();
+}
+
+// themes
+let themesLoaded = false;
+
+
+function showToast(msg) {
+  let t = document.getElementById('reup-tf-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'reup-tf-toast';
+    t.className = 'tf-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tt);
+  t._tt = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function resetSiteCustomization() {
+  document.documentElement.removeAttribute('style');
+  document.body.style.fontFamily = '';
+  try { localStorage.removeItem('reup-site-theme'); localStorage.removeItem('reup-site-font'); } catch(e) {}
+  showToast('reset to default');
+}
+
+// apply a theme object to the website css vars
+function applyTheme(parsed) {
+  const root = document.documentElement;
+  if (parsed.bg)          root.style.setProperty('--bg',     parsed.bg);
+  if (parsed.panel)       root.style.setProperty('--bg2',    parsed.panel);
+  if (parsed.panelborder) root.style.setProperty('--line2',  parsed.panelborder);
+  if (parsed.ink)         root.style.setProperty('--text',   parsed.ink);
+  if (parsed.inkdim)      root.style.setProperty('--muted',  parsed.inkdim);
+  if (parsed.inkmute)     root.style.setProperty('--muted2', parsed.inkmute);
+  if (parsed.accent) {
+    root.style.setProperty('--accent', parsed.accent);
+    // derive a slightly darker accent2 by overlaying black 15%
+    root.style.setProperty('--accent2', parsed.accent);
+  }
+  if (parsed.bg) {
+    // derive --bg3 as midpoint between bg and panel
+    root.style.setProperty('--bg3', parsed.panel || parsed.bg);
+  }
+  // save so we can restore on page load
+  try { localStorage.setItem('reup-site-theme', JSON.stringify(parsed)); } catch(e) {}
+}
+
+// apply a font to the website body
+function applyFont(familyStr) {
+  document.documentElement.style.setProperty('--ui-font', "'" + familyStr + "', 'DM Sans', sans-serif");
+  try { localStorage.setItem('reup-site-font', familyStr); } catch(e) {}
+}
+
+// restore saved theme/font on load
+(function restoreSiteCustomization() {
+  try {
+    const t = localStorage.getItem('reup-site-theme');
+    if (t) applyTheme(JSON.parse(t));
+    const f = localStorage.getItem('reup-site-font');
+    if (f) applyFont(f);
+  } catch(e) {}
+})();
+
+async function loadThemes() {
+  if (themesLoaded) return;
+  themesLoaded = true;
+  try {
+    const r = await fetch(SUPA_URL + '/themes?approved=eq.true&select=id,name,json', {
+      headers: { 'apikey': SUPA_KEY, 'authorization': 'Bearer ' + SUPA_KEY }
+    });
+    document.getElementById('themes-loading').style.display = 'none';
+    if (!r.ok) { document.getElementById('themes-empty').style.display = 'block'; return; }
+    const rows = await r.json();
+    const grid = document.getElementById('themes-grid');
+    if (!rows.length) { document.getElementById('themes-empty').style.display = 'block'; return; }
+    grid.style.display = 'grid';
+    rows.forEach((row, i) => {
+      const parsed = (typeof row.json === 'string') ? (() => { try { return JSON.parse(row.json); } catch(e) { return null; } })() : row.json; if (!parsed) return;
+      const card = document.createElement('div');
+      card.className = 'tf-card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      const accent = parsed.accent || '#c8f84a';
+      const bg = parsed.bg || '#111';
+      const ink = parsed.ink || '#f0f0ec';
+      card.innerHTML = `<div class="tf-card-bar" style="background:linear-gradient(90deg,${accent},${accent}88)"></div>
+        <div class="tf-card-body" style="background:${bg}">
+          <div class="tf-card-name" style="color:${ink}">${row.name}</div>
+          <div class="tf-card-sub" style="color:${accent}66">${accent}</div>
+          <div style="display:flex;gap:4px;margin-top:6px">
+            <div style="width:10px;height:10px;border-radius:50%;background:${bg};border:1px solid ${ink}22"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:${accent}"></div>
+            <div style="width:10px;height:10px;border-radius:50%;background:${ink}22"></div>
+          </div>
+        </div>`;
+      card.title = 'click to apply theme';
+      card.onclick = () => {
+        applyTheme(parsed);
+        card.style.borderColor = accent;
+        card.style.boxShadow = '0 0 0 2px ' + accent + '55';
+        setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 1000);
+      };
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('themes-loading').style.display = 'none';
+    document.getElementById('themes-empty').style.display = 'block';
+  }
+}
+
+// fonts
+let fontsLoaded = false;
+async function loadFonts() {
+  if (fontsLoaded) return;
+  fontsLoaded = true;
+  try {
+    const r = await fetch(SUPA_URL + '/fonts?approved=eq.true&select=id,name,url', {
+      headers: { 'apikey': SUPA_KEY, 'authorization': 'Bearer ' + SUPA_KEY }
+    });
+    document.getElementById('fonts-loading').style.display = 'none';
+    if (!r.ok) { document.getElementById('fonts-empty').style.display = 'block'; return; }
+    const rows = await r.json();
+    const grid = document.getElementById('fonts-grid');
+    if (!rows.length) { document.getElementById('fonts-empty').style.display = 'block'; return; }
+    grid.style.display = 'grid';
+    rows.forEach((row, i) => {
+      if (!row.url) return;
+      // inject font - handle specimen pages, googleapis css, and direct font files
+      const fid = 'webfont-' + row.id;
+      if (!document.getElementById(fid)) {
+        const url = row.url;
+        const isSpecimen = url.includes('fonts.google.com/specimen') || url.includes('fonts.google.com/#');
+        const isGoogleCss = url.includes('fonts.googleapis.com');
+        const isFontFile = /\.(ttf|otf|woff2?)(\?|$)/i.test(url);
+        if (isSpecimen) {
+          const m = url.match(/specimen\/([^?#]+)/);
+          if (m) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet'; link.id = fid;
+            link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(m[1].replace(/\+/g,' ')) + '&display=swap';
+            document.head.appendChild(link);
+          }
+        } else if (isGoogleCss) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet'; link.id = fid; link.href = url;
+          document.head.appendChild(link);
+        } else if (isFontFile) {
+          const s = document.createElement('style'); s.id = fid;
+          const ext = url.split('.').pop().toLowerCase().split('?')[0];
+          const fmt = ext==='otf'?'opentype':ext==='woff2'?'woff2':ext==='woff'?'woff':'truetype';
+          s.textContent = `@font-face{font-family:"${fid}";src:url("${url}") format("${fmt}");font-display:swap}`;
+          document.head.appendChild(s);
+        }
+      }
+      const card = document.createElement('div');
+      card.className = 'tf-card';
+      card.style.animationDelay = (i * 0.05) + 's';
+      card.innerHTML = `<div class="tf-card-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent)44)"></div>
+        <div class="tf-card-body">
+          <div class="tf-card-name">${row.name}</div>
+          <span class="font-preview" style="font-family:'${row.name}',sans-serif">the quick brown fox</span>
+        </div>`;
+      card.title = 'click to apply font';
+      card.onclick = () => {
+        applyFont(row.name);
+        card.style.borderColor = 'rgba(200,248,74,0.6)';
+        card.style.boxShadow = '0 0 0 2px rgba(200,248,74,0.2)';
+        setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 1000);
+      };
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('fonts-loading').style.display = 'none';
+    document.getElementById('fonts-empty').style.display = 'block';
+  }
+}
+
+// knowledge base
+const kb = {
+  cookie: {
+    keywords: ["cookie","roblosecurity","auth failed","cookie auth","no valid cookie","cookie error","authentication","no cookie set","paste cookie"],
+    answer: () => `<h4>cookie auth failed</h4>
+<p>your <code>.ROBLOSECURITY</code> cookie expired or was rotated by roblox. re/up detects this automatically and marks the account as invalid in the pool.</p>
+<div class="step"><div class="step-n">1</div><div>go to <code>roblox.com</code> and make sure you're logged in</div></div>
+<div class="step"><div class="step-n">2</div><div>open devtools <code>f12</code>, application, cookies, find <code>.ROBLOSECURITY</code>, copy the whole value</div></div>
+<div class="step"><div class="step-n">3</div><div>open re/up and paste it into the cookie field</div></div>
+<div class="step"><div class="step-n">4</div><div>wait for the green checkmark. if it fails, copy again making sure there are no extra spaces</div></div>
+<p style="color:var(--muted)">if you have multiple accounts, each one needs a valid cookie. re/up marks each account's status individually in the pool stats.</p>`
+  },
+  permission: {
+    keywords: ["does not have permission","no permission to edit","permission to edit place","cannot edit","edit place","universe access","account permission","place editor"],
+    answer: () => `<h4>account does not have permission to edit place</h4>
+<p><span class="err-tag">detected automatically</span> re/up checks permissions before starting and stops early if the account cannot edit the target place. this saves time instead of uploading 0 assets.</p>
+<div class="step"><div class="step-n">1</div><div>make sure the account in re/up is the owner of the place, or has been added as a collaborator with edit access</div></div>
+<div class="step"><div class="step-n">2</div><div>if uploading to a group place, the account needs to be in the group with an edit role, not just view</div></div>
+<div class="step"><div class="step-n">3</div><div>if you added the account as editor recently, try refreshing the place permissions on roblox.com and restarting re/up</div></div>
+<p style="color:var(--muted)">re/up uses the universe id from your place id to verify access before uploading anything. it will not start a job it knows will fail.</p>`
+  },
+  apikey: {
+    keywords: ["api key","open cloud","apikey","api-key","credentials","create api key","roblox api","open cloud key"],
+    answer: () => `<h4>how to create your api key</h4>
+<div class="step"><div class="step-n">1</div><div>go to <code>create.roblox.com/dashboard/credentials</code> and click the api keys tab</div></div>
+<div class="step"><div class="step-n">2</div><div>click create api key and give it any name</div></div>
+<div class="step"><div class="step-n">3</div><div>under assets, add read and write</div></div>
+<div class="step"><div class="step-n">4</div><div>under asset permissions, add write</div></div>
+<div class="step"><div class="step-n">5</div><div>under ip allowlist add <code>0.0.0.0/0</code> for any network</div></div>
+<div class="step"><div class="step-n">6</div><div>click save and copy the key immediately, you only see it once</div></div>
+<div class="step"><div class="step-n">7</div><div>paste it into the open cloud api key field in re/up. green checkmark means valid</div></div>`
+  },
+  plugin: {
+    keywords: ["plugin","not connecting","disconnected","studio","http requests","lua asset","beta features","install plugin","toolbar"],
+    answer: () => `<h4>plugin not connecting</h4>
+<div class="step"><div class="step-n">1</div><div>in studio: file, studio settings, security, turn on allow http requests</div></div>
+<div class="step"><div class="step-n">2</div><div>file, beta features, turn on lua asset creation api</div></div>
+<div class="step"><div class="step-n">3</div><div>restart studio after both, they don't apply until you restart</div></div>
+<div class="step"><div class="step-n">4</div><div>make sure the re/up desktop app is open before you click anything in the plugin</div></div>
+<div class="step"><div class="step-n">5</div><div>if still disconnected after 30s, click install plugin in the app and let studio restart</div></div>
+<p style="color:var(--muted)">the plugin talks to the backend on port 38073 locally. if a firewall is blocking localhost connections or something else is using that port it won't connect.</p>`
+  },
+  animation: {
+    keywords: ["animation failed","animation","anim","failed to load","animation load","private","uploadfailed","UploadFailed"],
+    answer: () => `<h4>animation failed to load</h4>
+<p><span class="warn-tag">auto-skipped</span> re/up logs it, skips the failed animation, and continues the rest of the job.</p>
+<h4>private source place</h4>
+<p>if the place you're scanning is private or friends-only roblox blocks the download. <span class="fix-tag">fix</span> set the source place to public in privacy settings on roblox.com. you don't need to publish changes, just make it visible.</p>
+<h4>UploadFailed</h4>
+<p><span class="warn-tag">rate limit</span> roblox rate limited the upload. re/up retries automatically using the retry-after header. just let it run.</p>`
+  },
+  ratelimit: {
+    keywords: ["rate limit","rate limited","429","too many requests","upload rate","retry","retry-after","backoff","slow"],
+    answer: () => `<h4>rate limiting</h4>
+<p>re/up handles rate limits automatically:</p>
+<ul>
+<li>animations: 420/min with 24 concurrent. reads retry-after header and waits exactly that long</li>
+<li>sounds: rotates through account pool when one hits quota</li>
+<li>meshes: up to 3000/min</li>
+</ul>
+<p><span class="fix-tag">fix</span> add more roblox accounts to the pool. each has its own quota and re/up rotates automatically.</p>`
+  },
+  quota: {
+    keywords: ["quota","upload quota","quota exceeded","daily limit","account limit","all accounts","pool exhausted"],
+    answer: () => `<h4>upload quota exceeded</h4>
+<p><span class="err-tag">detected automatically</span> re/up detects when an account hits roblox daily upload limits and rotates to the next in the pool.</p>
+<div class="step"><div class="step-n">1</div><div>if all accounts are exhausted the job pauses and shows the quota message</div></div>
+<div class="step"><div class="step-n">2</div><div>add more roblox accounts in the desktop app to increase your total quota</div></div>
+<div class="step"><div class="step-n">3</div><div>quotas reset daily. you can resume the job next day and re/up will pick up where it left off if you kept the ids</div></div>`
+  },
+  censored: {
+    keywords: ["name rejected","content policy","censored","inappropriate","flagged","moderated name","asset name"],
+    answer: () => `<h4>name rejected / content policy</h4>
+<p><span class="fix-tag">auto-handled</span> re/up detects when roblox rejects an asset name as inappropriate. it marks the asset as censored, uses a fallback name, and continues uploading.</p>
+<p style="color:var(--muted)">the asset still gets reuploaded successfully. the original name is saved in the log so you can see which ones were flagged.</p>`
+  },
+  sound: {
+    keywords: ["sound","audio","sounds","music","rbxassetid","sound reupload"],
+    answer: () => `<h4>reuploading sounds</h4>
+<div class="step"><div class="step-n">1</div><div>open re/up with a valid cookie and api key</div></div>
+<div class="step"><div class="step-n">2</div><div>in studio plugin, select sounds as the asset type</div></div>
+<div class="step"><div class="step-n">3</div><div>click start reuploading. re/up scans the place and uploads them</div></div>
+<div class="step"><div class="step-n">4</div><div>multiple accounts rotate automatically when one hits quota</div></div>
+<div class="step"><div class="step-n">5</div><div>when done, save the place with ctrl+s or the new ids won't stick</div></div>
+<p style="color:var(--muted)">assets already owned by your account or accessible from the place are skipped automatically.</p>`
+  },
+  setup: {
+    keywords: ["how do i","setup","install","start","get started","first time","what do i do","how to use","beginning","new"],
+    answer: () => `<h4>full setup from scratch</h4>
+<div class="step"><div class="step-n">1</div><div>download the installer from github releases and run it. installs both the desktop app and studio plugin automatically</div></div>
+<div class="step"><div class="step-n">2</div><div>open re/up. paste your <code>.ROBLOSECURITY</code> cookie from browser devtools</div></div>
+<div class="step"><div class="step-n">3</div><div>create an open cloud api key at <code>create.roblox.com/dashboard/credentials</code> with assets read+write, paste it in the app</div></div>
+<div class="step"><div class="step-n">4</div><div>in studio: enable allow http requests and lua asset creation api, then restart studio</div></div>
+<div class="step"><div class="step-n">5</div><div>open your place in studio, find re/up in the toolbar, pick an asset type, hit reupload</div></div>
+<div class="step"><div class="step-n">6</div><div>when done save with ctrl+s</div></div>`
+  },
+  port: {
+    keywords: ["port","38073","port in use","already in use","address already","config.ini","change port"],
+    answer: () => `<h4>port 38073 already in use</h4>
+<p>something else is using port 38073. to find it on windows run <code>netstat -ano | findstr :38073</code> in cmd and look up the pid in task manager.</p>
+<p>to change the port find <code>config.ini</code> in the re/up folder, change <code>port=38073</code>, and reinstall the plugin from the desktop app so they match.</p>`
+  },
+  cancel: {
+    keywords: ["cancel","pause","stop","mid-run","keep ids","discard","progress","interrupt"],
+    answer: () => `<h4>cancelling or pausing a job</h4>
+<ul>
+<li><strong>keep ids on</strong>: re/up tells the plugin to replace only the ids it already uploaded. the rest stay as original</li>
+<li><strong>keep ids off</strong>: all progress is discarded, nothing in the place changes</li>
+</ul>
+<p>after cancel or finish the server stays running. hit reupload in the plugin again to start a new job without restarting the app.</p>`
+  },
+  group: {
+    keywords: ["group","group id","group upload","creator","group permissions","upload to group"],
+    answer: () => `<h4>uploading to a group</h4>
+<div class="step"><div class="step-n">1</div><div>in re/up under creator, select a group instead of my account</div></div>
+<div class="step"><div class="step-n">2</div><div>paste your group id from the group url on roblox.com</div></div>
+<div class="step"><div class="step-n">3</div><div>your api key needs group asset write permissions</div></div>
+<div class="step"><div class="step-n">4</div><div>your account needs to be in the group with edit role</div></div>`
+  },
+  permissions: {
+    keywords: ["permission","403","forbidden","no permission","cant edit","universe access","edit access","cant reupload","place private"],
+    answer: () => `<h4>403 forbidden</h4>
+<ul>
+<li>api key doesn't have write access. recreate it and add write under both assets and asset permissions</li>
+<li>you don't have edit access to the place. need to be owner or collaborator with edit rights</li>
+<li>source place is private. animations need the source place to be public so re/up can download the originals</li>
+<li>group role doesn't have upload permissions</li>
+</ul>
+<p><span class="fix-tag">fix</span> most common: delete the api key and make a new one following the setup steps exactly.</p>`
+  },
+  mesh: {
+    keywords: ["mesh","meshes","mesh reupload","wrong type","moderated","inappropriate","censored","mesh fail"],
+    answer: () => `<h4>mesh reupload issues</h4>
+<ul>
+<li>flagged names get auto-handled with a fallback name, asset still uploads</li>
+<li>wrong type errors mean the id isn't a mesh, gets skipped harmlessly</li>
+<li>joints, attributes, tags, and children are all preserved on reupload</li>
+</ul>
+<p style="color:var(--muted)">if a whole batch fails check your api key first. meshes use open cloud and need asset write permissions.</p>`
+  },
+  multiaccount: {
+    keywords: ["multiple accounts","multi account","pool","account pool","second account","rotate","another account","add account"],
+    answer: () => `<h4>using multiple accounts</h4>
+<div class="step"><div class="step-n">1</div><div>in re/up click add account and paste the cookie for each account</div></div>
+<div class="step"><div class="step-n">2</div><div>each needs a valid <code>.ROBLOSECURITY</code> cookie, the app shows status per account</div></div>
+<div class="step"><div class="step-n">3</div><div>sound uploads rotate most aggressively. when one hits daily quota re/up switches to the next automatically</div></div>
+<p style="color:var(--muted)">if all accounts are exhausted re/up stalls until quotas reset. adding more accounts is the best way to speed up large jobs.</p>`
+  }
+};
+
+function findAnswer(q) {
+  q = q.toLowerCase();
+  let best = null, bestScore = 0;
+  for (const [key, val] of Object.entries(kb)) {
+    let score = 0;
+    for (const kw of val.keywords) {
+      if (q.includes(kw.toLowerCase())) score += kw.length;
+    }
+    if (score > bestScore) { bestScore = score; best = val; }
+  }
+  if (best && bestScore > 0) return best.answer();
+  return null;
+}
+
+function buildTopicList() {
+  return `<h4>everything i know about</h4>
+<p style="margin-bottom:0.4rem"><strong>errors</strong></p>
+<ul>
+<li><span class="inline-chip" data-q="cookie auth failed">cookie auth failed</span></li>
+<li><span class="inline-chip" data-q="account does not have permission to edit place">no permission to edit place</span></li>
+<li><span class="inline-chip" data-q="animation failed to load">animation failed to load</span></li>
+<li><span class="inline-chip" data-q="plugin not connecting">plugin not connecting</span></li>
+<li><span class="inline-chip" data-q="403 forbidden">403 forbidden</span></li>
+<li><span class="inline-chip" data-q="rate limited">rate limited</span></li>
+<li><span class="inline-chip" data-q="upload quota exceeded">quota exceeded</span></li>
+<li><span class="inline-chip" data-q="name rejected content policy">name rejected</span></li>
+<li><span class="inline-chip" data-q="port 38073 already in use">port in use</span></li>
+<li><span class="inline-chip" data-q="mesh upload failed">mesh failed</span></li>
+</ul>
+<p style="margin:0.6rem 0 0.4rem"><strong>setup</strong></p>
+<ul>
+<li><span class="inline-chip" data-q="full setup from scratch">full setup</span></li>
+<li><span class="inline-chip" data-q="how do i get my api key">api key</span></li>
+<li><span class="inline-chip" data-q="where do i find my cookie">find my cookie</span></li>
+<li><span class="inline-chip" data-q="multiple accounts pool">multi-account pool</span></li>
+<li><span class="inline-chip" data-q="upload to a group">group uploads</span></li>
+</ul>
+<p style="margin:0.6rem 0 0.4rem"><strong>how to</strong></p>
+<ul>
+<li><span class="inline-chip" data-q="how do i reupload sounds">reupload sounds</span></li>
+<li><span class="inline-chip" data-q="cancel or pause a job">cancel a job</span></li>
+<li><span class="inline-chip" data-q="change the port number">change the port</span></li>
+<li><span class="inline-chip" data-q="install the studio plugin">install plugin</span></li>
+</ul>
+<p style="margin-top:0.6rem;color:var(--muted2);font-size:0.78rem">for anything else hit up discord at <code>simplykur</code>.</p>`;
+}
+
+function noMatchAnswer() {
+  return `<h4>i didn't match that to anything specific</h4>
+<p>here is everything i know about, tap any:</p>` + buildTopicList();
+}
+
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+
+function addMsg(role, html) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = role === 'user' ? 'you' : 're/up assistant';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  if (role === 'user') bubble.textContent = html;
+  else bubble.innerHTML = html;
+  div.appendChild(label);
+  div.appendChild(bubble);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return bubble;
+}
+
+function addTyping() {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  div.appendChild(bubble);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+async function send() {
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  input.style.height = 'auto';
+  addMsg('user', q);
+  const sugs = document.getElementById('sugs');
+  if (sugs) sugs.style.display = 'none';
+  const typing = addTyping();
+  await new Promise(r => setTimeout(r, 320));
+  typing.remove();
+  if (/^show all topics$|^topics$|^help$|^what can you do$/i.test(q)) { addMsg('bot', buildTopicList()); return; }
+  const answer = findAnswer(q) || noMatchAnswer();
+  addMsg('bot', answer);
+}
+
+chat.addEventListener('click', e => {
+  const chip = e.target.closest('.inline-chip');
+  if (!chip) return;
+  input.value = chip.getAttribute('data-q') || chip.textContent;
+  send();
+});
+
+function sendSug(btn) { input.value = btn.textContent || btn.innerText; send(); }
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+input.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+</script>
+</body>
+</html>

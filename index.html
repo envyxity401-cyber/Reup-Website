@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>re/up - automatic asset reuploader</title>
+<link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--ui-font:'DM Sans',sans-serif;
+--bg:#0a0a0b;
+--bg2:#111114;
+--bg3:#18181c;
+--line:#ffffff12;
+--line2:#ffffff22;
+--accent:#c8f84a;
+--accent2:#a8e620;
+--text:#f0f0ec;
+--muted:#888884;
+--muted2:#555552;
+--red:#ff4d4d;
+--blue:#4da8ff;
+--amber:#ffb84d;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--ui-font);font-size:16px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:#0a0a0b}
+
+/* ---- scroll reveal ---- */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s cubic-bezier(0.22,1,0.36,1),transform 0.6s cubic-bezier(0.22,1,0.36,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-left{opacity:0;transform:translateX(-32px);transition:opacity 0.6s cubic-bezier(0.22,1,0.36,1),transform 0.6s cubic-bezier(0.22,1,0.36,1)}
+.reveal-left.visible{opacity:1;transform:none}
+.reveal-right{opacity:0;transform:translateX(32px);transition:opacity 0.6s cubic-bezier(0.22,1,0.36,1),transform 0.6s cubic-bezier(0.22,1,0.36,1)}
+.reveal-right.visible{opacity:1;transform:none}
+.reveal-scale{opacity:0;transform:scale(0.94);transition:opacity 0.5s cubic-bezier(0.22,1,0.36,1),transform 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.reveal-scale.visible{opacity:1;transform:none}
+[data-delay="1"]{transition-delay:0.08s}
+[data-delay="2"]{transition-delay:0.16s}
+[data-delay="3"]{transition-delay:0.24s}
+[data-delay="4"]{transition-delay:0.32s}
+[data-delay="5"]{transition-delay:0.40s}
+[data-delay="6"]{transition-delay:0.48s}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,11,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:background 0.3s}
+.logo{display:flex;align-items:center;gap:0.6rem;text-decoration:none}
+.logo-img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--line2);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.logo:hover .logo-img{transform:scale(1.15) rotate(-5deg)}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;letter-spacing:-0.02em;color:var(--text)}
+.logo-text span{color:var(--accent)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.875rem;font-weight:500;letter-spacing:0.02em;transition:color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1);display:inline-block}
+.nav-links a:hover{color:var(--text);transform:translateY(-2px)}
+.nav-right{display:flex;gap:0.75rem;align-items:center}
+.nav-cta{background:var(--accent);color:#0a0a0b;border:none;padding:0.5rem 1.25rem;border-radius:4px;font-size:0.875rem;font-weight:600;font-family:var(--ui-font);cursor:pointer;text-decoration:none;transition:background 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(200,248,74,0.25)}
+.nav-disc{color:var(--muted);border:1px solid var(--line2);padding:0.5rem 1rem;border-radius:4px;font-size:0.875rem;font-weight:500;font-family:var(--ui-font);cursor:pointer;text-decoration:none;transition:color 0.15s,border-color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.nav-disc:hover{color:var(--text);border-color:var(--muted2);transform:translateY(-2px)}
+
+.hero{min-height:100vh;display:flex;align-items:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,black 0%,transparent 70%);animation:grid-drift 20s ease-in-out infinite}
+@keyframes grid-drift{0%,100%{background-position:0 0}50%{background-position:10px 10px}}
+.hero-inner{max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:var(--bg3);border:1px solid var(--line2);border-radius:100px;padding:0.3rem 0.85rem;font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:1.5rem;animation:badge-in 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s both}
+@keyframes badge-in{from{opacity:0;transform:translateY(-12px) scale(0.9)}to{opacity:1;transform:none}}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,6vw,5.5rem);line-height:1;letter-spacing:-0.04em;margin-bottom:1.5rem;animation:h1-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both}
+@keyframes h1-in{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+h1 .slash{color:var(--accent)}
+h1 .dim{color:var(--muted2)}
+.hero-desc{color:var(--muted);font-size:1.1rem;line-height:1.7;margin-bottom:2.5rem;max-width:480px;font-weight:300;animation:h1-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.3s both}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;animation:h1-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s both}
+.btn-primary{background:var(--accent);color:#0a0a0b;border:none;padding:0.875rem 2rem;border-radius:4px;font-size:0.95rem;font-weight:700;font-family:var(--ui-font);cursor:pointer;text-decoration:none;display:inline-block;transition:background 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s;position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.2),transparent 70%);transform:translateX(-100%);transition:transform 0.5s}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-3px);box-shadow:0 10px 30px rgba(200,248,74,0.3)}
+.btn-primary:hover::after{transform:translateX(100%)}
+.btn-primary:active{transform:translateY(0) scale(0.97)}
+.btn-ghost{color:var(--muted);border:1px solid var(--line2);padding:0.875rem 2rem;border-radius:4px;font-size:0.95rem;font-weight:500;font-family:var(--ui-font);cursor:pointer;text-decoration:none;display:inline-block;transition:color 0.15s,border-color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted2);transform:translateY(-3px)}
+.terminal{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;overflow:hidden;font-family:'DM Mono',monospace;font-size:0.78rem;animation:term-in 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s both;box-shadow:0 24px 60px rgba(0,0,0,0.5)}
+@keyframes term-in{from{opacity:0;transform:translateX(40px) scale(0.97)}to{opacity:1;transform:none}}
+.term-bar{background:var(--bg3);border-bottom:1px solid var(--line);padding:0.6rem 1rem;display:flex;gap:0.5rem;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%}
+.dot-r{background:#ff5f57}
+.dot-y{background:#ffbd2e}
+.dot-g{background:#28c840}
+.term-title{margin:0 auto;color:var(--muted2);font-size:0.7rem}
+.term-body{padding:1.25rem 1rem;line-height:1.9}
+.tc{color:var(--accent)}
+.tm{color:var(--muted)}
+.ts{color:var(--blue)}
+.tw{color:var(--amber)}
+.te{color:var(--red)}
+.cursor{display:inline-block;width:7px;height:0.9em;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+section{padding:6rem 2rem;border-top:1px solid var(--line)}
+.container{max-width:1100px;margin:0 auto;width:100%}
+.section-label{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;color:var(--accent);text-transform:uppercase;margin-bottom:0.75rem}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3rem);letter-spacing:-0.03em;line-height:1.1;margin-bottom:1.25rem}
+.section-desc{color:var(--muted);font-size:1rem;line-height:1.7;max-width:580px;font-weight:300}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:4rem;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.feature{background:var(--bg);padding:2rem;transition:background 0.2s,transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.feature:hover{background:var(--bg2);transform:translateY(-3px)}
+.feature:hover .feature-icon{transform:scale(1.15) rotate(-5deg);border-color:rgba(200,248,74,0.4);background:rgba(200,248,74,0.08)}
+.feature-icon{width:36px;height:36px;border-radius:6px;background:var(--bg3);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s,background 0.2s}
+.fi-svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.2s}
+.feature:hover .fi-svg{stroke:var(--accent)}
+.feature h3{font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;margin-bottom:0.5rem;letter-spacing:-0.01em}
+.feature p{color:var(--muted);font-size:0.875rem;line-height:1.6;font-weight:300}
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-top:4rem}
+.steps{display:flex;flex-direction:column;gap:2rem}
+.step{display:flex;gap:1.25rem;align-items:flex-start;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.step:hover{transform:translateX(6px)}
+.step:hover .step-num{background:rgba(200,248,74,0.1);border-color:rgba(200,248,74,0.4);color:var(--accent)}
+.step-num{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);background:var(--bg3);border:1px solid var(--line2);width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:background 0.2s,border-color 0.2s,color 0.2s}
+.step h4{font-family:'Syne',sans-serif;font-weight:600;font-size:0.975rem;margin-bottom:0.3rem;letter-spacing:-0.01em}
+.step p{color:var(--muted);font-size:0.875rem;line-height:1.6;font-weight:300}
+.step code{background:var(--bg3);border:1px solid var(--line);padding:0.1rem 0.4rem;border-radius:3px;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--accent)}
+.asset-tags{display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:2rem}
+.asset-tag{background:rgba(200,248,74,0.06);border:1px solid var(--accent);border-radius:4px;padding:0.4rem 1rem;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--accent);transition:background 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.asset-tag:hover{background:rgba(200,248,74,0.12);transform:translateY(-2px) scale(1.04)}
+.info-box{background:var(--bg2);border:1px solid var(--line2);border-left:2px solid var(--accent);border-radius:4px;padding:1rem 1.25rem;margin-top:1.5rem;font-size:0.85rem;color:var(--muted);line-height:1.6;font-weight:300}
+.info-box strong{color:var(--text);font-weight:500}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:4rem}
+.stat{background:var(--bg);padding:1.5rem 2rem;transition:background 0.2s}
+.stat:hover{background:var(--bg2)}
+.stat-val{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:500;color:var(--accent);margin-bottom:0.25rem}
+.stat-label{font-size:0.8rem;color:var(--muted);font-weight:300}
+.cl-list{margin-top:3rem}
+.cl-item{border-bottom:1px solid var(--line);padding:1.5rem 0;display:grid;grid-template-columns:140px 1fr;gap:2rem;align-items:start;transition:background 0.15s;border-radius:4px}
+.cl-item:first-child{border-top:1px solid var(--line)}
+.cl-item:hover{background:var(--bg2);padding-left:0.75rem;padding-right:0.75rem}
+.cl-ver{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--accent);font-weight:500}
+.cl-date{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted2);margin-top:0.25rem}
+.cl-changes{display:flex;flex-direction:column;gap:0.35rem}
+.cl-change{font-size:0.875rem;color:var(--muted);font-weight:300;display:flex;gap:0.5rem;align-items:flex-start}
+.cl-tag{font-family:'DM Mono',monospace;font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:3px;flex-shrink:0;margin-top:0.22rem;font-weight:500}
+.cl-tag.new{background:rgba(200,248,74,0.1);color:var(--accent);border:1px solid rgba(200,248,74,0.25)}
+.cl-tag.fix{background:rgba(77,168,255,0.1);color:var(--blue);border:1px solid rgba(77,168,255,0.25)}
+.cl-tag.imp{background:rgba(255,184,77,0.1);color:var(--amber);border:1px solid rgba(255,184,77,0.25)}
+
+/* tut */
+.tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-top:4rem}
+.tut-steps{display:flex;flex-direction:column;gap:0}
+.tut-step{padding:1.25rem 0 1.25rem 1.5rem;border-left:1px solid var(--line2);position:relative;transition:border-color 0.3s}
+.tut-step::before{content:'';position:absolute;left:-4px;top:1.4rem;width:7px;height:7px;border-radius:50%;background:var(--bg3);border:1px solid var(--muted2);transition:all 0.3s}
+.tut-step.active{border-color:rgba(200,248,74,0.3)}
+.tut-step.active::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 12px rgba(200,248,74,0.5);transform:scale(1.3)}
+.tut-step h4{font-family:'Syne',sans-serif;font-weight:600;font-size:0.9rem;color:var(--text);margin-bottom:0.3rem;transition:color 0.2s}
+.tut-step p{color:var(--muted);font-size:0.82rem;line-height:1.6;font-weight:300}
+.tut-step code{background:var(--bg3);border:1px solid var(--line);padding:0.1rem 0.35rem;border-radius:3px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--accent)}
+.tut-step-num{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--accent);letter-spacing:0.08em;margin-bottom:0.25rem;display:block}
+.video-block{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;overflow:hidden;position:sticky;top:6rem}
+.video-placeholder{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:var(--bg3);position:relative;overflow:hidden}
+.video-placeholder video{width:100%;height:100%;object-fit:cover;display:block}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);cursor:pointer;transition:background 0.2s}
+.play-overlay:hover{background:rgba(0,0,0,0.1)}
+.play-btn{width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1),background 0.15s}
+.play-btn:hover{transform:scale(1.15);background:var(--accent2)}
+.play-btn svg{width:18px;height:18px;fill:#0a0a0b;margin-left:3px}
+.video-info{padding:1rem 1.25rem;border-top:1px solid var(--line)}
+.video-info h4{font-family:'Syne',sans-serif;font-weight:600;font-size:0.875rem;margin-bottom:0.2rem}
+.video-info p{color:var(--muted);font-size:0.78rem;font-weight:300}
+
+/* themes and fonts preview */
+.themes-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:3rem}
+.theme-preview{border-radius:8px;overflow:hidden;border:1px solid var(--line2);cursor:pointer;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s,box-shadow 0.2s}
+.theme-preview:hover{transform:translateY(-4px) scale(1.03);border-color:rgba(200,248,74,0.3);box-shadow:0 12px 32px rgba(0,0,0,0.4)}
+.theme-preview-bar{height:4px;width:100%}
+.theme-preview-body{padding:0.75rem;font-family:'DM Mono',monospace;font-size:0.68rem}
+.theme-preview-name{font-size:0.7rem;font-family:var(--ui-font);font-weight:500;margin-bottom:0.2rem}
+.theme-preview-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:4px}
+
+/* error detection section */
+.error-grid{display:flex;flex-direction:column;gap:0;margin-top:3rem;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.error-row{display:grid;grid-template-columns:1fr 2fr auto;gap:1.5rem;padding:1.25rem 1.5rem;border-bottom:1px solid var(--line);background:var(--bg);transition:background 0.2s,padding-left 0.2s;align-items:center}
+.error-row:last-child{border-bottom:none}
+.error-row:hover{background:var(--bg2);padding-left:2rem}
+.error-code{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--red);background:rgba(255,77,77,0.08);border:1px solid rgba(255,77,77,0.2);padding:0.25rem 0.6rem;border-radius:4px;white-space:nowrap;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.error-row:hover .error-code{transform:scale(1.05)}
+.error-desc{font-size:0.85rem;color:var(--muted);font-weight:300;line-height:1.5}
+.error-fix{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);white-space:nowrap;text-align:right}
+
+.helper-box{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;padding:2rem;margin-top:2rem;display:flex;gap:2rem;align-items:center;transition:border-color 0.2s,transform 0.25s cubic-bezier(0.34,1.56,0.64,1)}
+.helper-box:hover{border-color:rgba(200,248,74,0.2);transform:translateY(-3px)}
+.helper-icon{width:48px;height:48px;border-radius:10px;background:rgba(200,248,74,0.08);border:1px solid rgba(200,248,74,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.helper-box:hover .helper-icon{transform:scale(1.15) rotate(-5deg)}
+.helper-text h3{font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;margin-bottom:0.3rem}
+.helper-text p{color:var(--muted);font-size:0.875rem;line-height:1.6;font-weight:300}
+.helper-actions{display:flex;gap:0.75rem;margin-top:1rem;flex-wrap:wrap}
+.helper-btn{background:var(--accent);color:#0a0a0b;border:none;padding:0.5rem 1.25rem;border-radius:4px;font-size:0.85rem;font-weight:600;font-family:var(--ui-font);cursor:pointer;text-decoration:none;display:inline-block;transition:background 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.helper-btn:hover{background:var(--accent2);transform:translateY(-2px)}
+.error-tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem}
+.error-tag{background:var(--bg3);border:1px solid var(--line2);border-radius:100px;padding:0.2rem 0.65rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted2);transition:border-color 0.15s,color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+.error-tag:hover{border-color:var(--muted2);color:var(--muted);transform:translateY(-2px)}
+
+.cta-section{background:var(--bg2);border-top:1px solid var(--line);padding:6rem 2rem;text-align:center;position:relative;overflow:hidden}
+.cta-glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,#c8f84a18 0%,transparent 70%);pointer-events:none;animation:cta-pulse 4s ease-in-out infinite}
+@keyframes cta-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.8}50%{transform:translate(-50%,-50%) scale(1.2);opacity:1}}
+.cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+footer{border-top:1px solid var(--line);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-left{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted2)}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{color:var(--muted2);text-decoration:none;font-size:0.8rem;transition:color 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1);display:inline-block}
+.footer-links a:hover{color:var(--muted);transform:translateY(-2px)}
+@media(max-width:768px){
+.hero-inner{grid-template-columns:1fr;gap:2.5rem}
+.features-grid{grid-template-columns:1fr}
+.how-grid{grid-template-columns:1fr}
+.tut-grid{grid-template-columns:1fr}
+.stats-row{grid-template-columns:1fr}
+.cl-item{grid-template-columns:1fr;gap:0.5rem}
+.helper-box{flex-direction:column;align-items:flex-start}
+nav .nav-links{display:none}
+h1{font-size:2.75rem}
+.themes-row{grid-template-columns:repeat(2,1fr)}
+.error-row{grid-template-columns:1fr;gap:0.5rem}
+.error-fix{text-align:left}
+}
+
+/* themes & fonts on website */
+.tf-tabs{display:flex;gap:0;margin:2rem 0 1.5rem;width:fit-content}
+.tf-tab{background:none;border:1px solid var(--line2);border-right:none;padding:0.45rem 1.25rem;font-size:0.82rem;font-family:'DM Mono',monospace;color:var(--muted2);cursor:pointer;transition:all 0.15s;outline:none}
+.tf-tab:first-child{border-radius:4px 0 0 4px}
+.tf-tab:last-child{border-right:1px solid var(--line2);border-radius:0 4px 4px 0}
+.tf-tab.active{background:rgba(200,248,74,0.08);color:var(--accent);border-color:rgba(200,248,74,0.3)}
+.tf-tab:hover:not(.active){color:var(--muted);background:rgba(255,255,255,0.03)}
+.tf-loading-row{display:flex;gap:6px;align-items:center;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted2);padding:2rem 0}
+.tf-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:dot-bounce 1s ease-in-out infinite}
+.tf-dot:nth-child(2){animation-delay:0.15s}.tf-dot:nth-child(3){animation-delay:0.3s}
+@keyframes dot-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.tf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:0.5rem}
+.tf-card{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);animation:tfc-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes tfc-in{from{opacity:0;transform:scale(0.88) translateY(10px)}to{opacity:1;transform:none}}
+.tf-card:hover{transform:translateY(-5px) scale(1.04);box-shadow:0 14px 36px rgba(0,0,0,0.45);border-color:rgba(200,248,74,0.3)}
+.tf-card:active{transform:scale(0.97)}
+.tf-card-bar{height:5px;width:100%}
+.tf-card-body{padding:0.65rem 0.8rem}
+.tf-card-name{font-size:0.75rem;font-family:'Syne',sans-serif;font-weight:600;margin-bottom:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tf-card-sub{font-family:'DM Mono',monospace;font-size:0.6rem}
+.tf-card-swatches{display:flex;gap:3px;margin-top:6px}
+.tf-swatch{width:10px;height:10px;border-radius:50%}
+.tf-font-preview{font-size:1rem;display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tf-empty{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted2);padding:2rem 0}
+.tf-copied-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid rgba(200,248,74,0.3);color:var(--accent);font-family:'DM Mono',monospace;font-size:0.75rem;padding:0.5rem 1.25rem;border-radius:100px;opacity:0;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;z-index:999}
+.tf-copied-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.tf-toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg3,#18181c);border:1px solid rgba(200,248,74,0.3);color:var(--accent,#c8f84a);font-family:'DM Mono',monospace;font-size:0.72rem;padding:0.4rem 1.1rem;border-radius:100px;opacity:0;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;z-index:9999;white-space:nowrap}
+.tf-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.tf-reset{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted2,#555);border:1px solid var(--line2,#ffffff22);background:none;border-radius:4px;padding:0.25rem 0.65rem;cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);margin-left:auto;display:block}
+.tf-reset:hover{color:var(--text,#f0f0ec);border-color:var(--muted2,#555);transform:scale(1.04)}
+</style>
+</head>
+<body>
+
+<nav>
+<a href="#" class="logo">
+<img src="kkitty.jpg" class="logo-img" alt="re/up">
+<span class="logo-text">re<span>/</span>up</span>
+</a>
+<ul class="nav-links">
+<li><a href="#features">features</a></li>
+<li><a href="#tutorial">tutorial</a></li>
+<li><a href="#setup">setup</a></li>
+<li><a href="#themes">themes</a></li>
+<li><a href="#errors">errors</a></li>
+<li><a href="#changelog">changelog</a></li>
+</ul>
+<div class="nav-right">
+<a href="https://discord.gg/bm3v2qEjJF" class="nav-disc" target="_blank">discord</a>
+<a href="https://github.com/envyxity401-cyber/Reup-Updater/releases/latest" class="nav-cta" target="_blank">download</a>
+</div>
+</nav>
+
+<div class="hero">
+<div class="hero-grid"></div>
+<div class="hero-inner">
+<div>
+<div class="hero-badge">
+<span class="hero-badge-dot"></span>
+v1.7.3 latest
+</div>
+<h1>
+automatic<br>
+asset<br>
+<span class="slash">re/</span><span class="dim">up</span>loader
+</h1>
+<p class="hero-desc">
+bulk reupload roblox sounds, meshes, and animations to your account or group. install the app, paste your cookie, and let re/up handle the rest.
+</p>
+<div class="hero-actions">
+<a href="https://github.com/envyxity401-cyber/Reup-Updater/releases/latest" class="btn-primary" target="_blank">download v1.7.3</a>
+<a href="https://github.com/envyxity401-cyber/Reup-Updater/releases/latest" class="btn-ghost" target="_blank">github releases</a>
+</div>
+</div>
+<div class="terminal">
+<div class="term-bar">
+<div class="dot dot-r"></div>
+<div class="dot dot-y"></div>
+<div class="dot dot-g"></div>
+<span class="term-title">re/up backend</span>
+</div>
+<div class="term-body">
+<div><span class="ts">localhost started on port 38073.</span></div>
+<div><span class="tm">waiting to start reuploading...</span></div>
+<div>&nbsp;</div>
+<div><span class="tw">[info]</span> <span class="tm">checking account permissions...</span></div>
+<div><span class="tc">[ok]</span><span class="tm"> universe access confirmed</span></div>
+<div><span class="tw">[info]</span> <span class="tm">scanning place for assets...</span></div>
+<div>&nbsp;</div>
+<div><span class="tc">[01/48]</span> <span class="tm">sound </span><span class="ts">rbxassetid://8271049</span></div>
+<div><span class="tc">[02/48]</span> <span class="tm">sound </span><span class="ts">rbxassetid://8271050</span></div>
+<div><span class="tc">[03/48]</span> <span class="tm">anim&nbsp; </span><span class="ts">rbxassetid://8271052</span></div>
+<div><span class="te">[warn]</span> <span class="tm">account quota hit, rotating pool...</span></div>
+<div><span class="tc">...</span><span class="cursor"></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<section id="features">
+<div class="container">
+<p class="section-label reveal">capabilities</p>
+<h2 class="section-title reveal">what re/up does</h2>
+<p class="section-desc reveal">re/up runs a local server on your machine that your roblox studio plugin talks to. it checks permissions, fetches asset data, and reuploads everything automatically.</p>
+<div class="features-grid">
+<div class="feature reveal" data-delay="1">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+<h3>sound reupload</h3>
+<p>batch reuploads audio assets using a fixed window rate limiter. supports multiple accounts so when one hits quota, re/up automatically rotates to the next in the pool.</p>
+</div>
+<div class="feature reveal" data-delay="2">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg></div>
+<h3>mesh reupload</h3>
+<p>reuploads meshes with correct joints, attributes, tags, and children preserved. up to 3000 uploads per minute. censored names get flagged and continue without blocking the job.</p>
+</div>
+<div class="feature reveal" data-delay="3">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" style="fill:var(--muted);stroke:none"/></svg></div>
+<h3>animation reupload</h3>
+<p>reuploads animations at up to 420 per minute with 24 concurrent uploads. handles rate limit backoff so if roblox returns retry-after, re/up waits exactly that long before retrying.</p>
+</div>
+<div class="feature reveal" data-delay="4">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+<h3>smart filtering</h3>
+<p>re/up skips assets already yours or accessible from your place. checks permissions before starting so you never waste time uploading to a place you cannot edit.</p>
+</div>
+<div class="feature reveal" data-delay="5">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+<h3>multi-account pool</h3>
+<p>add multiple roblox accounts. re/up rotates through them automatically when one gets rate limited or hits its quota, keeping uploads running without interruption.</p>
+</div>
+<div class="feature reveal" data-delay="6">
+<div class="feature-icon"><svg class="fi-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+<h3>cancel and pause</h3>
+<p>cancel mid-run and choose whether to keep or discard uploaded ids. pause and resume without losing progress. the server stays alive after a job finishes so you can rerun immediately.</p>
+</div>
+</div>
+<div class="stats-row">
+<div class="stat reveal" data-delay="1"><div class="stat-val">420/min</div><div class="stat-label">animation upload rate</div></div>
+<div class="stat reveal" data-delay="2"><div class="stat-val">3000/min</div><div class="stat-label">mesh upload rate</div></div>
+<div class="stat reveal" data-delay="3"><div class="stat-val">50</div><div class="stat-label">assets per batch chunk</div></div>
+</div>
+</div>
+</section>
+
+<section id="tutorial">
+<div class="container">
+<p class="section-label reveal">video tutorial</p>
+<h2 class="section-title reveal">watch it in action</h2>
+<p class="section-desc reveal">follow along with the full walkthrough. covers the whole setup from download to first successful reupload.</p>
+<div class="tut-grid">
+<div class="reveal-left">
+<div class="tut-steps">
+<div class="tut-step active"><span class="tut-step-num">step 01</span><h4>download and install</h4><p>grab the installer from github releases and run it. both the desktop app and the studio plugin install automatically, nothing to configure separately.</p></div>
+<div class="tut-step"><span class="tut-step-num">step 02</span><h4>paste your cookie and api key</h4><p>open re/up and paste your <code>.ROBLOSECURITY</code> cookie and open cloud api key. the key needs assets read and write plus asset permissions write at <code>create.roblox.com/dashboard/credentials</code>.</p></div>
+<div class="tut-step"><span class="tut-step-num">step 03</span><h4>enable studio settings</h4><p>in roblox studio go to file, studio settings, security and turn on allow http requests. then file, beta features and turn on lua asset creation api. restart studio after both.</p></div>
+<div class="tut-step"><span class="tut-step-num">step 04</span><h4>open your place and connect</h4><p>paste your place id in the app and hit launch studio. the app shows connected in green when the plugin is talking to the backend. if it doesnt connect after 30 seconds restart studio.</p></div>
+<div class="tut-step"><span class="tut-step-num">step 05</span><h4>start reuploading</h4><p>pick your asset type in the plugin toolbar and hit start reuploading. when it finishes save the place with <code>ctrl+s</code> or your ids wont stick.</p></div>
+</div>
+</div>
+<div class="reveal-right">
+<div class="video-block">
+<div class="video-placeholder" id="videoWrapper">
+<video id="tutVideo" src="https://files.catbox.moe/gg6ba4.mp4" preload="metadata" crossorigin="anonymous" style="display:none"></video>
+<div style="width:100%;aspect-ratio:16/9;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem" id="videoThumb">
+<div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted2)">tutorial video</div>
+<div class="play-btn" onclick="playVideo()" style="cursor:pointer"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+</div>
+</div>
+<div class="video-info"><h4>re/up full setup tutorial</h4><p>covers download, api key setup, studio settings, and first reupload</p></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="setup">
+<div class="container">
+<div class="how-grid">
+<div class="reveal-left">
+<p class="section-label">setup guide</p>
+<h2 class="section-title">up and running<br>in minutes</h2>
+<p class="section-desc">everything comes bundled in the installer. no separate plugin download, no config files to hunt down.</p>
+<div class="asset-tags">
+<span class="asset-tag">sound</span>
+<span class="asset-tag">mesh</span>
+<span class="asset-tag">animation</span>
+<span class="asset-tag">user upload</span>
+<span class="asset-tag">group upload</span>
+</div>
+<div class="info-box">
+<strong>got errors?</strong> check the error reference below or open the assistant for step-by-step fixes based on the actual source code, not generic advice.
+</div>
+</div>
+<div class="reveal-right">
+<div class="steps">
+<div class="step"><div class="step-num">01</div><div><h4>download and install</h4><p>download the installer from github releases and run it. the desktop app and roblox studio plugin are both installed automatically.</p></div></div>
+<div class="step"><div class="step-num">02</div><div><h4>open the desktop app</h4><p>launch re/up. paste your <code>.ROBLOSECURITY</code> cookie. for multi-account support add additional cookies here too.</p></div></div>
+<div class="step"><div class="step-num">03</div><div><h4>open roblox studio</h4><p>the plugin is already installed. open your game, find re/up in the toolbar, and select the asset type you want to reupload.</p></div></div>
+<div class="step"><div class="step-num">04</div><div><h4>hit reupload</h4><p>re/up checks permissions, fetches your assets, filters out anything already accessible, and reuploads everything to your account or group automatically.</p></div></div>
+<div class="step"><div class="step-num">05</div><div><h4>rerun without restarting</h4><p>when a job finishes the server stays alive. just hit reupload again from the plugin without touching the desktop app.</p></div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+
+<section id="themes">
+<div class="container">
+<p class="section-label reveal">customization</p>
+<h2 class="section-title reveal">community themes &amp; fonts</h2>
+<p class="section-desc reveal">submit your own from the desktop app. approved themes and fonts show up here and inside re/up for everyone.</p>
+<div class="tf-tabs reveal">
+  <button class="tf-tab active" onclick="tfswitch('themes',this)">themes</button>
+  <button class="tf-tab" onclick="tfswitch('fonts',this)">fonts</button>
+<button class="tf-reset" onclick="resetSiteCustomization()">reset</button>
+</div>
+<div id="tf-themes">
+  <div id="tf-themes-loading" class="tf-loading-row"><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div><span>loading themes...</span></div>
+  <div class="tf-grid" id="tf-themes-grid" style="display:none"></div>
+  <div class="tf-empty" id="tf-themes-empty" style="display:none">no community themes yet. submit yours in re/up.</div>
+</div>
+<div id="tf-fonts" style="display:none">
+  <div id="tf-fonts-loading" class="tf-loading-row"><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div><span>loading fonts...</span></div>
+  <div class="tf-grid" id="tf-fonts-grid" style="display:none"></div>
+  <div class="tf-empty" id="tf-fonts-empty" style="display:none">no community fonts yet. submit yours in re/up.</div>
+</div>
+</div>
+</section>
+
+<section id="errors">
+<div class="container">
+<p class="section-label reveal">error reference</p>
+<h2 class="section-title reveal">common errors and fixes</h2>
+<p class="section-desc reveal">re/up detects these automatically and shows the fix in the in-app assistant. if you see one, here is what it means and what to do.</p>
+<div class="error-grid reveal">
+<div class="error-row">
+<span class="error-code">account does not have permission to edit place</span>
+<div class="error-desc">the account you are uploading with is not an editor of the target place. either the place is owned by a different user or group, or the account was not given edit access. re/up stops early instead of uploading 0 assets.</div>
+<span class="error-fix">add account as editor</span>
+</div>
+<div class="error-row">
+<span class="error-code">cookie auth failed / 401</span>
+<div class="error-desc">your .roblosecurity cookie has expired or is invalid. this usually happens after a password change or when roblox rotates security tokens. re/up marks the account as invalid and skips it.</div>
+<span class="error-fix">re-paste cookie in app</span>
+</div>
+<div class="error-row">
+<span class="error-code">403 forbidden on upload</span>
+<div class="error-desc">roblox rejected the upload request. most common cause is the open cloud api key not having the required scopes: assets.read, assets.write, and asset-permissions.write on the correct creator.</div>
+<span class="error-fix">check api key scopes</span>
+</div>
+<div class="error-row">
+<span class="error-code">animation failed to load</span>
+<div class="error-desc">the source animation asset could not be fetched from roblox before reuploading. usually a deleted, private, or restricted asset. re/up logs it, skips it, and continues the rest of the job.</div>
+<span class="error-fix">check source asset exists</span>
+</div>
+<div class="error-row">
+<span class="error-code">rate limited / retry-after</span>
+<div class="error-desc">roblox returned a rate limit header. re/up reads the retry-after value and waits exactly that many seconds before resuming. no action needed, it resolves automatically.</div>
+<span class="error-fix">wait, auto-recovers</span>
+</div>
+<div class="error-row">
+<span class="error-code">name rejected / content policy</span>
+<div class="error-desc">the asset name was flagged by roblox content filters. re/up marks the asset as censored, uses a fallback name, and continues uploading. the asset still gets reuploaded successfully.</div>
+<span class="error-fix">auto-handled</span>
+</div>
+<div class="error-row">
+<span class="error-code">plugin not connecting</span>
+<div class="error-desc">the studio plugin cannot reach the re/up backend on port 38073. either http requests is off in studio settings, the backend crashed, or a firewall is blocking localhost connections.</div>
+<span class="error-fix">enable http requests in studio</span>
+</div>
+<div class="error-row">
+<span class="error-code">upload quota exceeded</span>
+<div class="error-desc">the current account hit roblox daily upload limits. re/up rotates to the next account in the pool automatically. if all accounts are exhausted, the job pauses and shows the limit message.</div>
+<span class="error-fix">add more accounts to pool</span>
+</div>
+</div>
+<div class="helper-box reveal">
+<div class="helper-icon">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8f84a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+</div>
+<div class="helper-text">
+<h3>in-app and web assistant</h3>
+<p>the re/up assistant watches the live log and automatically suggests fixes when it detects known error patterns. paste any error into the web assistant for instant diagnosis based on the actual source code.</p>
+<div class="error-tags">
+<span class="error-tag">cookie auth failed</span>
+<span class="error-tag">no permission to edit place</span>
+<span class="error-tag">animation failed</span>
+<span class="error-tag">plugin not connecting</span>
+<span class="error-tag">403 forbidden</span>
+<span class="error-tag">rate limited</span>
+<span class="error-tag">quota exceeded</span>
+</div>
+<div class="helper-actions">
+<a href="reup-assistant.html" class="helper-btn" target="_blank">open web assistant</a>
+<a href="https://discord.gg/bm3v2qEjJF" class="helper-btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--line2)" target="_blank">discord support</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="changelog">
+<div class="container">
+<p class="section-label reveal">changelog</p>
+<h2 class="section-title reveal">what's new</h2>
+<p class="section-desc reveal">recent changes across releases. join the discord for full patch notes and early previews.</p>
+<div class="cl-list">
+<div class="cl-item reveal">
+<div><div class="cl-ver">v1.7.3</div><div class="cl-date">latest</div></div>
+<div class="cl-changes">
+<div class="cl-change"><span class="cl-tag new">new</span>dev console takes js input like devtools, arrow keys cycle history</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>font submit only takes one of url or attached file, never both at once</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>stats pills auto shrink so 5 digit totals render fully instead of clipping</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>setup language step shows the selected language as active on open</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>updater banner stays hidden when your installed version is higher than the published one</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>firewall fix bat finds the setup exe when dropped in the same folder, scans subfolders as a fallback</div>
+</div>
+</div>
+<div class="cl-item reveal">
+<div><div class="cl-ver">v1.7.2</div><div class="cl-date">previous</div></div>
+<div class="cl-changes">
+<div class="cl-change"><span class="cl-tag new">new</span>language picker with 11 languages, rtl support for arabic</div>
+<div class="cl-change"><span class="cl-tag new">new</span>language step added to setup tutorial</div>
+<div class="cl-change"><span class="cl-tag new">new</span>tools tab for bundled bat utilities (uninstall, firewall fix)</div>
+<div class="cl-change"><span class="cl-tag new">new</span>discord profile card with avatar and username on stats</div>
+<div class="cl-change"><span class="cl-tag new">new</span>personal and global reupload counters with smooth count up animations</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>youtube volume now persists across track switches</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>loop button cycles off, queue loop, single song loop</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>community sounds paginated with load more so they dont overflow into the submit form</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>installer kills reup and reup backend before install and uninstall</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>console window opens via create new console instead of cmd start</div>
+</div>
+</div>
+<div class="cl-item reveal">
+<div><div class="cl-ver">v1.7.1</div><div class="cl-date">previous</div></div>
+<div class="cl-changes">
+<div class="cl-change"><span class="cl-tag new">new</span>terms of service screen on first launch with spring animations</div>
+<div class="cl-change"><span class="cl-tag new">new</span>loading screen while backend starts up</div>
+<div class="cl-change"><span class="cl-tag new">new</span>beta build detection banner when running ahead of latest stable</div>
+<div class="cl-change"><span class="cl-tag new">new</span>beta release channel setting, fetches pre-releases from github when enabled</div>
+<div class="cl-change"><span class="cl-tag new">new</span>single instance lock with active job detection on duplicate open</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>spring open and close animations on all panels and overlays</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>custom fonts now persist across restarts and theme changes</div>
+<div class="cl-change"><span class="cl-tag imp">imp</span>active font can now be deleted without having to switch first</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>font family applies to all ui elements, not just some</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>potato mode no longer adds 300ms delay to panel close</div>
+</div>
+</div>
+<div class="cl-item reveal">
+<div><div class="cl-ver">v1.7.0</div><div class="cl-date">previous</div></div>
+<div class="cl-changes">
+<div class="cl-change"><span class="cl-tag new">new</span>in-app reup assistant added, watches the log and auto suggests fixes when something fails</div>
+<div class="cl-change"><span class="cl-tag new">new</span>welcome screen lists every topic grouped by errors, setup, and how-tos</div>
+<div class="cl-change"><span class="cl-tag new">new</span>discord rich presence shows reup status on your profile while the app is running</div>
+<div class="cl-change"><span class="cl-tag new">new</span>tutorial video section live on the landing page</div>
+<div class="cl-change"><span class="cl-tag fix">fix</span>standalone web assistant no longer makes blocked api calls</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<div class="cta-section">
+<div class="cta-glow"></div>
+<div style="position:relative;z-index:1">
+<p class="section-label reveal" style="margin-bottom:0.75rem">get started</p>
+<h2 class="section-title reveal" style="max-width:600px;margin:0 auto 1rem">ready to start<br>reuploading?</h2>
+<p class="section-desc reveal" style="margin:0 auto 2.5rem">download the installer or join the discord for help and updates.</p>
+<div class="cta-actions reveal">
+<a href="https://github.com/envyxity401-cyber/Reup-Updater/releases/latest" class="btn-primary" target="_blank">download v1.7.3</a>
+<a href="https://discord.gg/bm3v2qEjJF" class="btn-ghost" target="_blank">join discord</a>
+</div>
+</div>
+</div>
+
+<footer>
+<div class="footer-left">re/up v1.7.3 &nbsp;|&nbsp; made by <a href="https://guns.lol/simplykur" target="_blank" style="color:var(--muted);text-decoration:none;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">simplykur</a></div>
+<div class="footer-links">
+<a href="https://envyxity401-cyber.github.io/reup-website/" target="_blank">website</a>
+<a href="https://github.com/envyxity401-cyber" target="_blank">github</a>
+<a href="https://discord.gg/bm3v2qEjJF" target="_blank">discord</a>
+<a href="https://guns.lol/simplykur" target="_blank">guns.lol</a>
+<a href="reup-assistant.html" target="_blank">error assistant</a>
+</div>
+</footer>
+
+<script>
+// video player
+function playVideo() {
+  const thumb = document.getElementById('videoThumb');
+  const vid = document.getElementById('tutVideo');
+  if (!vid) return;
+  thumb.style.display = 'none';
+  vid.style.display = 'block';
+  vid.controls = true;
+  vid.play().catch(() => { vid.controls = true; });
+}
+
+// scroll reveal
+const revealEls = document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => observer.observe(el));
+
+// tutorial step highlight on scroll
+const tutSteps = document.querySelectorAll('.tut-step');
+function highlightStep(idx) { tutSteps.forEach((s,i) => s.classList.toggle('active', i === idx)); }
+if (tutSteps.length) {
+  let currentStep = 0;
+  document.addEventListener('scroll', () => {
+    const tutSection = document.getElementById('tutorial');
+    if (!tutSection) return;
+    const rect = tutSection.getBoundingClientRect();
+    const progress = Math.max(0, Math.min(1, (-rect.top) / (rect.height - window.innerHeight)));
+    const step = Math.min(tutSteps.length - 1, Math.floor(progress * tutSteps.length));
+    if (step !== currentStep) { currentStep = step; highlightStep(step); }
+  });
+}
+
+// themes & fonts
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoeXhzcndyZ292a2RhYWJyYnV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTI2OTcsImV4cCI6MjA5MzU4ODY5N30.zRYkKtMCQXHH8xu8FfiDx-Nx2MhGW2TdZPmkLWcWMA4';
+const SUPA_URL = 'https://dhyxsrwrgovkdaabrbuu.supabase.co/rest/v1';
+const SUPA_HEADERS = {'apikey':SUPA_KEY,'authorization':'Bearer '+SUPA_KEY};
+
+let tfThemesLoaded = false, tfFontsLoaded = false;
+
+function tfswitch(name, btn) {
+  document.querySelectorAll('.tf-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tf-themes').style.display = name==='themes' ? '' : 'none';
+  document.getElementById('tf-fonts').style.display = name==='fonts' ? '' : 'none';
+  if (name==='themes') loadTfThemes();
+  if (name==='fonts') loadTfFonts();
+}
+
+function showToast(msg) {
+  let t = document.getElementById('tf-toast');
+  if (!t) { t=document.createElement('div'); t.id='tf-toast'; t.className='tf-copied-toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tt);
+  t._tt = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+
+
+function showToast(msg) {
+  let t = document.getElementById('reup-tf-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'reup-tf-toast';
+    t.className = 'tf-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tt);
+  t._tt = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function resetSiteCustomization() {
+  document.documentElement.removeAttribute('style');
+  document.body.style.fontFamily = '';
+  try { localStorage.removeItem('reup-site-theme'); localStorage.removeItem('reup-site-font'); } catch(e) {}
+  showToast('reset to default');
+}
+
+// apply a theme object to the website css vars
+function applyTheme(parsed) {
+  const root = document.documentElement;
+  if (parsed.bg)          root.style.setProperty('--bg',     parsed.bg);
+  if (parsed.panel)       root.style.setProperty('--bg2',    parsed.panel);
+  if (parsed.panelborder) root.style.setProperty('--line2',  parsed.panelborder);
+  if (parsed.ink)         root.style.setProperty('--text',   parsed.ink);
+  if (parsed.inkdim)      root.style.setProperty('--muted',  parsed.inkdim);
+  if (parsed.inkmute)     root.style.setProperty('--muted2', parsed.inkmute);
+  if (parsed.accent) {
+    root.style.setProperty('--accent', parsed.accent);
+    // derive a slightly darker accent2 by overlaying black 15%
+    root.style.setProperty('--accent2', parsed.accent);
+  }
+  if (parsed.bg) {
+    // derive --bg3 as midpoint between bg and panel
+    root.style.setProperty('--bg3', parsed.panel || parsed.bg);
+  }
+  // save so we can restore on page load
+  try { localStorage.setItem('reup-site-theme', JSON.stringify(parsed)); } catch(e) {}
+}
+
+// apply a font to the website body
+function applyFont(familyStr) {
+  document.documentElement.style.setProperty('--ui-font', "'" + familyStr + "', 'DM Sans', sans-serif");
+  try { localStorage.setItem('reup-site-font', familyStr); } catch(e) {}
+}
+
+// restore saved theme/font on load
+(function restoreSiteCustomization() {
+  try {
+    const t = localStorage.getItem('reup-site-theme');
+    if (t) applyTheme(JSON.parse(t));
+    const f = localStorage.getItem('reup-site-font');
+    if (f) applyFont(f);
+  } catch(e) {}
+})();
+
+async function loadTfThemes() {
+  if (tfThemesLoaded) return; tfThemesLoaded = true;
+  try {
+    const r = await fetch(SUPA_URL+'/themes?approved=eq.true&select=id,name,json', {headers:SUPA_HEADERS});
+    document.getElementById('tf-themes-loading').style.display = 'none';
+    if (!r.ok) { document.getElementById('tf-themes-empty').style.display='block'; return; }
+    const rows = await r.json();
+    const grid = document.getElementById('tf-themes-grid');
+    if (!rows.length) { document.getElementById('tf-themes-empty').style.display='block'; return; }
+    grid.style.display = 'grid';
+    rows.forEach((row, i) => {
+      const parsed = (typeof row.json === 'string') ? (() => { try { return JSON.parse(row.json); } catch(e) { return null; } })() : row.json; if (!parsed) return;
+      const accent = parsed.accent || '#c8f84a';
+      const bg = parsed.bg || '#111';
+      const ink = parsed.ink || '#f0f0ec';
+      const panel = parsed.panel || bg;
+      const inkdim = parsed.inkdim || ink + '88';
+      const card = document.createElement('div');
+      card.className = 'tf-card';
+      card.style.animationDelay = (i*0.05)+'s';
+      card.innerHTML = `<div class="tf-card-bar" style="background:linear-gradient(90deg,${accent},${accent}66)"></div>
+        <div class="tf-card-body" style="background:${bg}">
+          <div class="tf-card-name" style="color:${ink}">${row.name}</div>
+          <div class="tf-card-sub" style="color:${accent}aa">${accent}</div>
+          <div class="tf-card-swatches">
+            <div class="tf-swatch" style="background:${bg};border:1px solid ${ink}22" title="background"></div>
+            <div class="tf-swatch" style="background:${accent}" title="accent"></div>
+            <div class="tf-swatch" style="background:${panel};border:1px solid ${ink}22" title="panel"></div>
+            <div class="tf-swatch" style="background:${ink}44" title="ink"></div>
+          </div>
+        </div>`;
+      card.title = 'click to apply theme';
+      card.onclick = () => {
+        applyTheme(parsed);
+        // flash the card border as feedback
+        card.style.borderColor = accent;
+        card.style.boxShadow = '0 0 0 2px ' + accent + '55';
+        setTimeout(()=>{ card.style.borderColor=''; card.style.boxShadow=''; }, 1000);
+        if (typeof showToast === 'function') showToast(row.name + ' applied!');
+      };
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('tf-themes-loading').style.display = 'none';
+    document.getElementById('tf-themes-empty').style.display = 'block';
+  }
+}
+
+async function loadTfFonts() {
+  if (tfFontsLoaded) return; tfFontsLoaded = true;
+  try {
+    const r = await fetch(SUPA_URL+'/fonts?approved=eq.true&select=id,name,url', {headers:SUPA_HEADERS});
+    document.getElementById('tf-fonts-loading').style.display = 'none';
+    if (!r.ok) { document.getElementById('tf-fonts-empty').style.display='block'; return; }
+    const rows = await r.json();
+    const grid = document.getElementById('tf-fonts-grid');
+    if (!rows.length) { document.getElementById('tf-fonts-empty').style.display='block'; return; }
+    grid.style.display = 'grid';
+    rows.forEach((row, i) => {
+      if (!row.url) return;
+      const fid = 'wf-'+row.id;
+      if (!document.getElementById(fid)) {
+        // detect url type and load font correctly
+        const url = row.url;
+        const isSpecimenPage = url.includes('fonts.google.com/specimen') || url.includes('fonts.google.com/#');
+        const isGoogleCss = url.includes('fonts.googleapis.com');
+        const isFontFile = /\.(ttf|otf|woff2?)(\?|$)/i.test(url);
+        if (isSpecimenPage) {
+          // extract family name from specimen url and convert to embed
+          const familyMatch = url.match(/specimen\/([^?#]+)/);
+          if (familyMatch) {
+            const family = familyMatch[1].replace(/\+/g, ' ');
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.id = fid;
+            link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}&display=swap`;
+            document.head.appendChild(link);
+          }
+        } else if (isGoogleCss) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet'; link.id = fid;
+          link.href = url; document.head.appendChild(link);
+        } else if (isFontFile) {
+          const s = document.createElement('style'); s.id = fid;
+          const ext = url.split('.').pop().toLowerCase().split('?')[0];
+          const fmt = ext==='otf'?'opentype':ext==='woff2'?'woff2':ext==='woff'?'woff':'truetype';
+          s.textContent = `@font-face{font-family:"${fid}";src:url("${url}") format("${fmt}");font-display:swap}`;
+          document.head.appendChild(s);
+        }
+      }
+      const card = document.createElement('div');
+      card.className = 'tf-card';
+      card.style.animationDelay = (i*0.05)+'s';
+      card.innerHTML = `<div class="tf-card-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent)44)"></div>
+        <div class="tf-card-body">
+          <div class="tf-card-name">${row.name}</div>
+          <span class="tf-font-preview" style="font-family:'${row.name}',sans-serif">the quick brown fox</span>
+        </div>`;
+      card.title = 'click to apply font';
+      card.onclick = () => {
+        applyFont(row.name);
+        card.style.borderColor = 'rgba(200,248,74,0.6)';
+        card.style.boxShadow = '0 0 0 2px rgba(200,248,74,0.2)';
+        setTimeout(()=>{ card.style.borderColor=''; card.style.boxShadow=''; }, 1000);
+        if (typeof showToast === 'function') showToast(row.name + ' applied!');
+      };
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    document.getElementById('tf-fonts-loading').style.display = 'none';
+    document.getElementById('tf-fonts-empty').style.display = 'block';
+  }
+}
+
+// auto-load themes when section scrolls into view
+const tfSection = document.getElementById('themes');
+if (tfSection) {
+  const tfObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { loadTfThemes(); tfObs.disconnect(); }
+  }, {threshold:0.1});
+  tfObs.observe(tfSection);
+}
+
+</script>
+</body>
+</html>
