@@ -70,13 +70,18 @@ if not errorlevel 1 (
     )
 )
 
-:: 4 push, use main first then fall back to master in case the remote is older
-echo ^>^>^> pushing to origin
-git push -u origin main 2>nul
+:: 4 push to main. if the remote has diverged (this folder is a fresh clone/init
+:: so its history doesn't match the remote's), a normal push is rejected. since
+:: this folder IS the source of truth for the site, force-update main to match it.
+echo ^>^>^> pushing to origin (main)
+git push -u origin main
 if errorlevel 1 (
-    git push -u origin master
+    echo.
+    echo ^>^>^> normal push was rejected, the remote has a different history
+    echo ^>^>^> force-updating the site to match this folder...
+    git push -u origin main --force
     if errorlevel 1 (
-        echo ERROR: push failed. check the remote url + your github auth.
+        echo ERROR: push failed. check the remote url + your github auth ^(a browser/login window may have opened^).
         pause
         exit /b 1
     )
