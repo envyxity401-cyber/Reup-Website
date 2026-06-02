@@ -8,7 +8,7 @@ setlocal EnableDelayedExpansion
 
 cd /d "%~dp0"
 
-set "REMOTE=https://github.com/envyxity401-cyber/reup-website.git"
+set "REMOTE=https://github.com/simplykur/reup-website.git"
 set "MSG=%~1"
 if "%MSG%"=="" (
     for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value 2^>nul') do set "DT=%%I"
