@@ -81,7 +81,14 @@ if errorlevel 1 (
     echo ^>^>^> force-updating the site to match this folder...
     git push -u origin main --force
     if errorlevel 1 (
-        echo ERROR: push failed. check the remote url + your github auth ^(a browser/login window may have opened^).
+        echo.
+        echo ERROR: push failed.
+        echo   if you saw "Permission denied / 403", git is signed in as the WRONG
+        echo   github account ^(e.g. it pushed as a different user than simplykur^).
+        echo   fix it by clearing the saved github login, then run this again and
+        echo   sign in as the account that owns the repo:
+        echo       cmdkey /delete:git:https://github.com
+        echo   otherwise check the remote url is correct.
         pause
         exit /b 1
     )
